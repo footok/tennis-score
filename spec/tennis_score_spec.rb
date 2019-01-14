@@ -2,7 +2,7 @@ require 'tennis_score'
 
 describe TennisScore do
   let(:tennis_score) { TennisScore.new(param) }
-  let(:param) { { player1: 0, player2: 0, set_score: {player1: 0, player2: 0}} }
+  let(:param) { {set_score: {player1: 0, player2: 0}} }
 
   describe 'points_won_by and score' do
     context 'when pass a player as an argument' do
@@ -106,20 +106,97 @@ describe TennisScore do
     end
 
     context 'when player1 wins 6 games and 2 games more than the opponent' do
-      let(:param) { { player1: 0, player2: 0, set_score: {player1: 6, player2: 1}} }
+      let(:param) { {set_score: {player1: 6, player2: 1}} }
       it 'returns winner' do
         expect(tennis_score.score).to eql("Player 1 won")
       end
     end
 
     context 'when player2 wins 6 games and 2 games more than the opponent' do
-      let(:param) { { player1: 0, player2: 0, set_score: {player1: 4, player2: 6}} }
+      let(:param) { {set_score: {player1: 4, player2: 6}} }
       it 'returns winner' do
         expect(tennis_score.score).to eql("Player 2 won")
       end
     end
 
+    context 'when player2 wins 6 games and 2 games more than the opponent' do
+      let(:param) { {set_score: {player1: 5, player2: 6}} }
+      it 'returns winner' do
+        expect(tennis_score.score).to eql("5:6, 0:0")
+      end
+    end
 
+    context 'when player1 wins 7 games and player2 wins 5 games' do
+      let(:param) { {set_score: {player1: 6, player2: 5}} }
+      it 'returns set score' do
+        tennis_score.points_won_by('player1')
+        tennis_score.points_won_by('player1')
+        tennis_score.points_won_by('player1')
+        tennis_score.points_won_by('player1')
+        expect(tennis_score.score).to eql("Player 1 won")
+      end
+    end
 
+    describe 'tie_breaker' do
+      context 'when player1 wins 6 games and player2 wins 7 games' do
+        let(:param) { {set_score: {player1: 6, player2: 6}} }
+        it 'returns winner' do
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          # score 6:7
+          tennis_score.score
+          expect(tennis_score.score).to eql("Player 2 won")
+        end
+      end
+
+      context 'when player1 wins 6 points and player2 wins 6 points' do
+        let(:param) { {set_score: {player1: 6, player2: 6}} }
+        it 'returns current score' do
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          # score 6:7
+          tennis_score.score
+          expect(tennis_score.score).to eql("6:6, 6:6")
+        end
+      end
+
+      context 'when player1 wins 7 points by a margin of two or more points.' do
+        let(:param) { {set_score: {player1: 6, player2: 6}} }
+        it 'returns winner' do
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player2')
+          tennis_score.points_won_by('player1')
+          tennis_score.points_won_by('player1')
+          # score 6:7
+          tennis_score.score
+          expect(tennis_score.score).to eql("Player 1 won")
+        end
+      end
+    end
   end
 end
